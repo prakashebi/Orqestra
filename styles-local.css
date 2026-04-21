@@ -1,0 +1,248 @@
+/*** ! RESPONSIVE TEMP FIX ***/
+.acc {
+  grid-column: 1/-1;
+}
+
+:root {
+  --embl-grid-module--prime: 0px;
+}
+
+.vf-masthead__title {
+  margin-top: 10px;
+}
+
+.vf-masthead__title a {
+  color: #fff;
+}
+
+@media screen and (min-width: 800px) {
+  .acc {
+    grid-column: auto;
+  }
+
+  :root {
+    --embl-grid-module--prime: 200px;
+  }
+
+  .vf-masthead__title {
+    margin-top: unset;
+  }
+}
+/* ????!!!! */
+@media screen and (min-width: 720px) and (max-width: 799px) {
+  .acc {
+    grid-column: 1/-1;
+  }
+
+  :root {
+    --embl-grid-module--prime: 0px;
+  }
+
+  .vf-masthead__title {
+    margin-top: 10px;
+  }
+}
+/*** end ! RESPONSIVE TEMP FIX ***/
+
+
+.vf-masthead a,
+.embl-training__sidebar a,
+.vf-tabs a {
+  text-decoration: none;
+}
+
+.course-contents a {
+  text-decoration: none !important;
+}
+
+.embl-grid__col-2 {
+  grid-column: 2 / span 1 !important;
+}
+
+
+.embl-grid.vf-masthead__inner {
+  display: grid;
+  .vf-badge {
+    width: 70px;
+  }
+}
+
+/* CSS for SVG */
+.vf-link svg {
+  display: flex;
+  align-items: center;
+  &:hover svg {
+    fill: #4a8bff;
+  }
+}
+.vf-link svg {
+  width: 24px;
+  margin-right: 4px;
+  fill: #54585a;
+}
+
+.ebiacademy-icon, .ebiacademy-icon:visited {
+  border-bottom: none;
+  text-decoration: none;
+}
+
+
+.ebiacademy-icon {
+  display: flex;
+  align-items: center;
+  &:hover svg {
+    fill: #4a8bff;
+  }
+}
+
+.ebiacademy-icon svg {
+  width: 24px;
+  margin-right: 4px;
+  fill: #54585a;
+}
+
+.ebiacademy-icon .icon-training {
+  color: #54585a;
+  border: none;
+  text-decoration: none;
+  font-size: x-large;
+  vertical-align: bottom;
+  margin-right: 4px;
+}
+
+/* Banner */
+.vf-banner--phase [class*=vf-text] .vf-link {
+  text-decoration: underline;
+}
+
+
+/* Shorten Beta badge */
+.ebiacademy-home .vf-masthead .vf-badge {
+  width: 10%;
+}
+
+/* EBI Academy book-cover sidebar */
+
+.embl-training__sidebar {
+  /* height: 600px; */
+  width: 100%;
+  position: relative;
+}
+
+
+.embl-training__sidebar .vf-figure {
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1rem;
+}
+.embl-training__sidebar .vf-figure__image {
+  margin: 0;
+}
+.embl-training__sidebar .vf-button {
+  width: calc( 100% - 8px);
+}
+.embl-training__sidebar .vf-list--compact {
+  line-height: 1;
+}
+
+.embl-training__sidebar  a.vf-button.vf-button--primary.vf-button--sm {
+  width: calc( 100% - 25px);
+}
+
+
+/* TOTAL OVERRIDE; REALLY BAAAAADDDD!!!!!! */
+a, a:visited {
+  border-bottom: none;
+}
+
+
+
+/* TABS */
+.vf-tabs__list {
+  border-bottom: 1px solid #aaa;
+}
+
+.vf-tabs__link.is-active {
+background: none !important;
+border: 1px solid #aaa !important;
+border-bottom-color:  #fff !important;
+}
+
+
+.vf-lede {
+  font-size: 24px;
+}
+
+
+
+@media (min-width: 846px) {
+  .embl-training__sidebar {
+    /* height: 600px; */
+    width: 100%;
+    position: relative;
+    top: -190px;
+  }
+}
+
+/******************* Syles From Stu for Header *******************/
+
+.clipme {
+  background-color: #008641;
+  background-size: contain;
+  overflow: hidden;
+  box-sizing: border-box;
+  position: absolute;
+  top: -200px;
+  right: -100px;
+  width: 1000px;
+  height: 1000px;
+  border-radius: 100%;
+}
+.clipme:before {
+  content: '';
+  position: absolute;
+  width: 508px;
+  height: 508px;
+  border-radius: 100%;
+  background-color: #009f4d;
+  top: 254px;
+  left: 254px;
+  z-index: 0;
+}
+.clipme img {
+  -webkit-filter: blur(1px);
+          filter: blur(1px);
+  height: auto;
+  width: 100%;
+}
+
+.vf-masthead {
+  overflow: hidden;
+}
+
+.vf-masthead__inner {
+  position: relative;
+}
+
+:root {
+  --vf-masthead__color--background: #009f4d;
+}
+
+.dave {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  border: 5px dashed rgba(108, 255, 179, 0.5);
+  z-index: 0;
+}
+
+.peter {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background-color: rgba(6, 255, 127, 0.3);
+  left: 100px;
+  top: 40px;
+  /* z-index: 6100; */
+}
