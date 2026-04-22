@@ -141,7 +141,7 @@ http://localhost:8000/docs
 - PostgreSQL integration
 - Basic event logging
 
-### Mid-term
+### Mid-term
 - OpenSearch indexing + search APIs
 - Activity stream (event-driven)
 - Entity versioning system
