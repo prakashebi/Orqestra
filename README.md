@@ -6,91 +6,125 @@ This platform focuses on structured metadata, advanced search capabilities, and 
 
 ---
 
+
+---
+
 ## 🚀 Current Status
 
 ⚠️ Work in Progress (early prototype)
 
-- [x] Project setup (FastAPI + React)
-- [x] Initial authentication scaffold
-- [x] Deployed basic frontend on AWS EC2
-- [ ] Document upload and storage
-- [ ] Metadata schema and management
-- [ ] OpenSearch integration for search
-- [ ] Version control for documents
-- [ ] Audit logging
-- [ ] Role-based access control (RBAC)
+- Project setup (FastAPI + React)
+- Initial authentication scaffold
+- Deployed basic frontend on AWS EC2
+- Core entity management (tasks/work items – evolving to generic entities)
+- Metadata schema (extensible)
+- OpenSearch integration (early)
+- Event logging (foundation for audit + activity streams)
+- Role-based access control (RBAC)
 
 ---
 
 ## 🧠 Problem Statement
 
-Modern document systems often lack:
-- Rich, structured metadata
-- Powerful search across both metadata and content
-- Transparent audit trails
-- Version traceability
+Modern collaboration and workflow systems often suffer from:
 
-This project aims to address these gaps with a scalable architecture inspired by research data platforms.
+- Limited extensibility beyond simple “tasks”
+- Poor visibility into system activity and history
+- Weak search across entities and interactions
+- Lack of real-time collaboration capabilities
+- Tight coupling between components (hard to scale)
+
+Orqestra addresses these gaps by introducing:
+
+- An event-driven architecture
+- Extensible entity models (not limited to tasks)
+- Real-time updates and activity streams
+- Search-first design with OpenSearch
+- Auditability and traceability by design
 
 ---
-
 ## 🏗️ Architecture Overview
+### Core Components
+- Backend: FastAPI (Python)
+- Frontend: React
+- Database: PostgreSQL
+- Search Engine: OpenSearch
+- Event Layer: (Planned – async/event-driven pattern)
+- Storage: AWS S3 (planned)
+- Deployment: AWS EC2 (current), containerisation planned
 
-High-level components:
-
-- **Backend**: FastAPI (Python)
-- **Frontend**: React
-- **Database**: PostgreSQL
-- **Search Engine**: OpenSearch
-- **Storage**: AWS S3 (planned)
-- **Deployment**: AWS EC2 (current), containerisation planned
-
+### High-Level Flow
 ```
 (Client - React)
-↓
-(FastAPI Backend)
-↓
-(PostgreSQL) (OpenSearch)
-↓
-(Document Storage - S3)
+        ↓
+(FastAPI Backend / API Layer)
+        ↓
+(Event Layer - Planned)
+   ↓              ↓
+(PostgreSQL)   (OpenSearch)
+        ↓
+(Optional Storage - S3)
 ```
 
-
 ---
-
-## 🔑 Core Features (Planned)
-
+## 🔑 Core Features
 - User authentication (JWT-based)
 - Role-based access control (RBAC)
-- Document upload and storage
-- Metadata management (custom schemas)
+- Generic entity management (tasks, workflows, future extensions)
+- Real-time updates (WebSocket / event-driven – planned)
+- Event logging and activity streams
 - Full-text and faceted search (OpenSearch)
-- Document versioning (immutable history)
-- Audit logging (access and modification tracking)
+- Audit logging (system-wide traceability)
+- Versioning of entities (history tracking)
 - RESTful API design with OpenAPI documentation
+
+---
+## 🧩 Design Principles
+- Event-driven first → every action is an event
+- Extensibility → not limited to “tasks”
+- Search-centric → OpenSearch as a core component
+- Auditability → trace everything
+- Scalability → loosely coupled components
+- Cloud-ready → AWS-native deployment path
 
 ---
 
 ## 📦 Project Structure
 
 ```
-backend/
-app/
-api/
-core/
-models/
-schemas/
-frontend/
-infra/
-docs/
+repo-root/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── api/
+│   │   │   └── routes.py
+│   │   ├── core/
+│   │   │   └── config.py
+│   │   ├── models/
+│   │   │   └── base.py
+│   │   ├── schemas/
+│   │   │   └── user.py
+│   │
+│   ├── requirements.txt
+│
+├── frontend/
+│   └── README.md
+│
+├── infra/
+│   └── docker-compose.yml
+│
+├── docs/
+│   └── architecture.md
+│
+└── README.md
 ```
-
 
 ---
 
 ## ⚙️ Getting Started (Backend)
 
-```bash
+```
 cd backend
 python -m venv venv
 source venv/bin/activate
@@ -103,154 +137,39 @@ API docs available at:
 http://localhost:8000/docs
 
 ---
+
 ## 🛣️ Roadmap
+### Short-term
+- Core entity APIs (CRUD + relationships)
+- Metadata schema design (extensible)
+- PostgreSQL integration
+- Basic event logging
 
-Short-term:
-
-- Implement document upload API
-- Design metadata schema
-- Integrate PostgreSQL models
-
-Mid-term:
-
-- OpenSearch indexing + search API
-- Versioning system
+### Mid-term
+- OpenSearch indexing + search APIs
+- Activity stream (event-driven)
+- Entity versioning system
 - Audit logging
 
-Long-term:
-
-- Role-based access control
-- Document similarity search
-- Automated metadata extraction
+### Long-term
+- Real-time collaboration (WebSockets)
+- Event bus integration (async processing)
+- AI-assisted workflows (AWS Bedrock)
+- Semantic search and recommendations
+- Workflow automation / orchestration engine
 
 ---
 ## 📌 Notes
 
 This project is being developed iteratively with a focus on:
 
-- clean architecture
-- scalability
-- alignment with research data platforms (e.g. CERN/EMBL use 
-cases)
+- clean, modular architecture
+- event-driven system design
+- scalability and extensibility
+- alignment with research and platform engineering use cases (e.g. CERN / EMBL)
 
+---
 ## 👤 Author
 
 Prakash Gaur
-
-
----
-
-# 🧱 2. Repo Structure (create this)
-
-```
-repo-root/
-│
-├── backend/
-│ ├── app/
-│ │ ├── main.py
-│ │ ├── api/
-│ │ │ └── routes.py
-│ │ ├── core/
-│ │ │ └── config.py
-│ │ ├── models/
-│ │ │ └── base.py
-│ │ ├── schemas/
-│ │ │ └── user.py
-│ │
-│ ├── requirements.txt
-│
-├── frontend/
-│ └── README.md
-│
-├── infra/
-│ └── docker-compose.yml
-│
-├── docs/
-│ └── architecture.md
-│
-└── README.md
-```
-
-
----
-
-# 🐍 3. Backend starter files
-
-## backend/app/main.py
-
-```python
-from fastapi import FastAPI
-from app.api.routes import router
-
-app = FastAPI(title="Document Management Platform")
-
-app.include_router(router)
-
-
-@app.get("/")
-def root():
-    return {"message": "Document Management Platform API"}
-```
----
-## backend/app/api/routes.py
-
-```
-from fastapi import APIRouter
-
-router = APIRouter()
-
-
-@router.get("/health")
-def health_check():
-    return {"status": "ok"}
-
-
-@router.get("/auth/login")
-def login_stub():
-    return {"message": "Login endpoint (to be implemented)"}
-```
-
----
-## backend/app/core/config.py
-```
-class Settings:
-    PROJECT_NAME: str = "Document Management Platform"
-    VERSION: str = "0.1.0"
-
-
-settings = Settings()
-```
-
----
-## backend/app/models/base.py
-```
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
-```
-
----
-## backend/app/schemas/user.py
-```
-from pydantic import BaseModel
-
-
-class User(BaseModel):
-    email: str
-    password: str
-
-```
-
----
-## backend/requirements.txt
-```
-fastapi
-uvicorn
-sqlalchemy
-psycopg2-binary
-pydantic
-python-jose
-passlib
-```
-
 
