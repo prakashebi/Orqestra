@@ -196,9 +196,15 @@ Click into a workspace and create your first board with **+ New board**.
 
 ### 7. Add columns and cards
 
-Open a board to get the Trello-like view. Use **+ Add another list** to create columns, then **+ Add a card** inside each column. Cards can be dragged between columns, edited, and commented on.
+Open a board to get the Dashboard view. Use **+ Add another list** to create columns, then **+ Add a card** inside each column. Cards can be dragged between columns, edited, and commented on.
 
-![Board view](docs/screenshots/board.png)
+![Board view](docs/screenshots/board2.png)
+
+### 8. Invite members
+
+CLick on member option to add/remove members to the board and set their role either as Viewer or Editor.
+
+![Invite members](docs/screenshots/invite.png)
 
 ### 8. Stop services
 

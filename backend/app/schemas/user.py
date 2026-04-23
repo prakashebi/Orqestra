@@ -31,10 +31,18 @@ class UserRead(BaseModel):
 
 
 class UserUpdate(BaseModel):
+    """Admin-only update — can change any field including role and active status."""
     email: EmailStr | None = None
     username: str | None = None
     role: UserRole | None = None
     is_active: bool | None = None
+
+
+class UserSelfUpdate(BaseModel):
+    """Self-service update — role and is_active are intentionally excluded."""
+    email: EmailStr | None = None
+    username: str | None = None
+    password: str | None = None
 
 
 class LoginRequest(BaseModel):

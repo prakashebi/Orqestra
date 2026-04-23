@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Plus, LayoutDashboard } from 'lucide-react'
+import { Plus, LayoutDashboard, Users } from 'lucide-react'
 import { useBoardStore } from '../store/boardStore'
+import { useAuthStore } from '../store/authStore'
 import Navbar from '../components/layout/Navbar'
 import Modal from '../components/ui/Modal'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
+import MembersModal from '../components/members/MembersModal'
+import type { Entity } from '../types'
 
 const BOARD_COLORS = [
   'bg-gradient-to-br from-sky-500 to-blue-600',
@@ -21,10 +24,12 @@ export default function WorkspacePage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const navigate = useNavigate()
   const { workspaces, boards, loading, fetchBoards, createBoard } = useBoardStore()
+  const currentUser = useAuthStore((s) => s.user)
 
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
+  const [membersTarget, setMembersTarget] = useState<Entity | null>(null)
 
   const workspace = workspaces.find((w) => w.id === workspaceId)
 
@@ -78,15 +83,27 @@ export default function WorkspacePage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {boards.map((board, i) => (
-            <button
-              key={board.id}
-              onClick={() => navigate(`/board/${board.id}`)}
-              className={`group ${BOARD_COLORS[i % BOARD_COLORS.length]} flex h-32 items-end rounded-2xl p-4 text-left shadow-sm hover:shadow-md transition-shadow`}
-            >
-              <span className="text-base font-bold text-white drop-shadow group-hover:underline">
-                {board.title}
-              </span>
-            </button>
+            <div key={board.id} className="group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <button
+                onClick={() => navigate(`/board/${board.id}`)}
+                className={`w-full ${BOARD_COLORS[i % BOARD_COLORS.length]} flex h-28 items-end p-4 text-left`}
+              >
+                <span className="text-base font-bold text-white drop-shadow group-hover:underline">
+                  {board.title}
+                </span>
+              </button>
+              {(currentUser?.role === 'admin' || board.owner_id === currentUser?.id) && (
+                <div className="flex justify-end bg-white px-3 py-1.5">
+                  <button
+                    onClick={() => setMembersTarget(board)}
+                    title="Manage members"
+                    className="flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100"
+                  >
+                    <Users size={13} /> Members
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -107,6 +124,16 @@ export default function WorkspacePage() {
           </div>
         </div>
       </Modal>
+
+      {membersTarget && (
+        <MembersModal
+          entityId={membersTarget.id}
+          entityTitle={membersTarget.title}
+          ownerId={membersTarget.owner_id ?? undefined}
+          isOpen={!!membersTarget}
+          onClose={() => setMembersTarget(null)}
+        />
+      )}
     </div>
   )
 }

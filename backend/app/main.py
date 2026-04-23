@@ -42,5 +42,7 @@ def create_app() -> Flask:
 
     with app.app_context():
         db.create_all()
+        from app.core.seed import seed_default_admin
+        seed_default_admin()
 
     return app

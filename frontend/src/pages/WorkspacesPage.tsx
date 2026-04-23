@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Layers } from 'lucide-react'
+import { Plus, Layers, Users } from 'lucide-react'
 import { useBoardStore } from '../store/boardStore'
+import { useAuthStore } from '../store/authStore'
 import Navbar from '../components/layout/Navbar'
 import Modal from '../components/ui/Modal'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
+import MembersModal from '../components/members/MembersModal'
+import type { Entity } from '../types'
 
 const BG_COLORS = [
   'from-indigo-500 to-purple-600',
@@ -20,9 +23,11 @@ const BG_COLORS = [
 export default function WorkspacesPage() {
   const navigate = useNavigate()
   const { workspaces, loading, error, fetchWorkspaces, createWorkspace } = useBoardStore()
+  const currentUser = useAuthStore((s) => s.user)
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
   const [creating, setCreating] = useState(false)
+  const [membersTarget, setMembersTarget] = useState<Entity | null>(null)
 
   useEffect(() => { fetchWorkspaces() }, [fetchWorkspaces])
 
@@ -71,20 +76,31 @@ export default function WorkspacesPage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {workspaces.map((ws, i) => (
-            <button
+            <div
               key={ws.id}
-              onClick={() => navigate(`/workspace/${ws.id}`)}
-              className="group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-md transition-shadow text-left"
+              className="group relative overflow-hidden rounded-2xl shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className={`bg-gradient-to-br ${BG_COLORS[i % BG_COLORS.length]} h-24 p-5`}>
+              <button
+                onClick={() => navigate(`/workspace/${ws.id}`)}
+                className={`w-full bg-gradient-to-br ${BG_COLORS[i % BG_COLORS.length]} h-24 p-5 text-left`}
+              >
                 <h3 className="text-lg font-bold text-white group-hover:underline">{ws.title}</h3>
-              </div>
-              <div className="bg-white px-5 py-3">
+              </button>
+              <div className="flex items-center justify-between bg-white px-5 py-3">
                 <p className="text-xs text-gray-400">
                   Created {new Date(ws.created_at).toLocaleDateString()}
                 </p>
+                {(currentUser?.role === 'admin' || ws.owner_id === currentUser?.id) && (
+                  <button
+                    onClick={() => setMembersTarget(ws)}
+                    title="Manage members"
+                    className="flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100"
+                  >
+                    <Users size={13} /> Members
+                  </button>
+                )}
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </div>
@@ -105,6 +121,16 @@ export default function WorkspacesPage() {
           </div>
         </div>
       </Modal>
+
+      {membersTarget && (
+        <MembersModal
+          entityId={membersTarget.id}
+          entityTitle={membersTarget.title}
+          ownerId={membersTarget.owner_id ?? undefined}
+          isOpen={!!membersTarget}
+          onClose={() => setMembersTarget(null)}
+        />
+      )}
     </div>
   )
 }

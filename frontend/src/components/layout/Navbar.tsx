@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { LogOut, LayoutGrid, ChevronRight } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
@@ -9,9 +10,10 @@ interface Crumb {
 
 interface Props {
   breadcrumbs?: Crumb[]
+  actions?: ReactNode
 }
 
-export default function Navbar({ breadcrumbs = [] }: Props) {
+export default function Navbar({ breadcrumbs = [], actions }: Props) {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
 
@@ -43,6 +45,7 @@ export default function Navbar({ breadcrumbs = [] }: Props) {
 
       {user && (
         <div className="flex items-center gap-3">
+          {actions}
           <span className="text-sm text-indigo-200">{user.username}</span>
           <button
             onClick={handleLogout}
