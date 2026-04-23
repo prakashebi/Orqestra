@@ -14,7 +14,7 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   backend:
-    build: ../backend
+    build: ./backend
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -25,7 +25,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ../backend:/app
+      - ./backend:/app
 
   frontend:
     image: node:20-alpine
@@ -37,7 +37,7 @@ services:
     environment:
       VITE_API_URL: http://backend:8000/api/v1
     volumes:
-      - ../frontend:/app
+      - ./frontend:/app
     depends_on:
       - backend
 
