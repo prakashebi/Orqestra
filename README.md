@@ -261,6 +261,7 @@ Open http://localhost:3000. The Vite dev server proxies all `/api` requests to `
 - Dockerfile for frontend (production build with Nginx)
 - User assignment to cards and boards
 - Board search and filtering UI
+- Real-time cross-member updates — card and list changes broadcast live to all board members via WebSockets (Flask-SocketIO), eliminating the need to reload the page
 
 ### Mid-term
 - OpenSearch indexing + search APIs
@@ -269,7 +270,6 @@ Open http://localhost:3000. The Vite dev server proxies all `/api` requests to `
 - Audit log viewer in UI
 
 ### Long-term
-- Real-time collaboration (WebSockets)
 - Event bus integration (async processing)
 - AI-assisted workflows (AWS Bedrock)
 - Semantic search and recommendations
