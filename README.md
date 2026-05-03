@@ -16,7 +16,8 @@ The platform focuses on structured data, real-time updates, searchability, and f
 - Role-based access control (RBAC)
 - Event / audit logging (foundation for activity streams)
 - Trello-like board UI with drag-and-drop
-- OpenSearch integration (early / planned)
+- Full-text search with pluggable backend (PostgreSQL FTS default, OpenSearch optional)
+- Global search UI with grouped results across all entity types
 
 
 ## 🧠 Problem Statement
@@ -44,7 +45,7 @@ Orqestra addresses these gaps by introducing:
 - **Backend:** Flask (Python)
 - **Frontend:** React + TypeScript + Vite
 - **Database:** PostgreSQL
-- **Search Engine:** OpenSearch (planned)
+- **Search:** PostgreSQL FTS (default, zero extra infra) or OpenSearch (optional, for scale)
 - **Event Layer:** Planned – async/event-driven pattern
 - **Storage:** AWS S3 (planned)
 - **Deployment:** Docker Compose (local), AWS EC2 (planned)
@@ -68,7 +69,8 @@ Orqestra addresses these gaps by introducing:
 - Generic entity management (workspaces, boards, columns, cards)
 - Trello-like board UI with drag-and-drop cards
 - Event logging and audit streams
-- Full-text and faceted search (OpenSearch – planned)
+- Global search UI — search across all workspaces, boards and cards from any page
+- Pluggable search backend — PostgreSQL FTS out of the box, switch to OpenSearch for scale
 - Versioning of entities (planned)
 - RESTful API design
 
@@ -76,7 +78,7 @@ Orqestra addresses these gaps by introducing:
 ## 🧩 Design Principles
 - Event-driven first → every action is an event
 - Extensibility → not limited to "tasks"
-- Search-centric → OpenSearch as a core component
+- Search-centric → pluggable search (PostgreSQL FTS or OpenSearch) as a core component
 - Auditability → trace everything
 - Scalability → loosely coupled components
 - Cloud-ready → AWS-native deployment path
@@ -206,7 +208,14 @@ CLick on member option to add/remove members to the board and set their role eit
 
 ![Invite members](docs/screenshots/invite.png)
 
-### 8. Stop services
+### 9. Search
+
+Search is enabled by default using **PostgreSQL full-text search** — no extra setup needed. A **Search** link appears in the navbar on every page. Clicking it opens the search page where you can find workspaces, boards and cards by keyword.
+
+Results are grouped by entity type and each result links directly to the relevant page.
+![Search](docs/screenshots/search.png)
+
+### 10. Stop services
 
 ```bash
 docker compose down
@@ -225,6 +234,86 @@ docker compose up --build
 ```
 
 The backend volume mounts `./backend` into the container so Python changes are reflected without a full rebuild. The frontend runs `npm install && npm run dev` on start, so dependency changes require a restart (`docker compose restart frontend`).
+
+
+## 🔍 Search Backends
+
+Orqestra ships with a pluggable search layer. You choose the backend based on your available compute resources.
+
+| Backend | When to use | Extra infra |
+|---|---|---|
+| `postgres` (default) | Development, small deployments | None — uses the existing PostgreSQL instance |
+| `opensearch` | Large deployments with 100s of boards and 1000s of cards, or knowledge-base use cases | Requires a running OpenSearch node (≥2 GB RAM) |
+
+### PostgreSQL FTS (default)
+
+No configuration needed. The default `SEARCH_BACKEND=postgres` uses `tsvector` / `websearch_to_tsquery` directly on the entities table. Works immediately after starting the stack.
+
+### Enabling OpenSearch
+
+#### 1. Start the OpenSearch container
+
+OpenSearch is defined as an opt-in Docker Compose profile and is not started by default:
+
+```bash
+docker compose --profile opensearch up -d opensearch
+```
+
+Wait for it to become healthy (usually ~30 seconds):
+
+```bash
+docker compose ps opensearch
+```
+
+#### 2. Configure the backend
+
+Add the following to your `.env` file (create one at the repo root if it does not exist):
+
+```env
+SEARCH_BACKEND=opensearch
+OPENSEARCH_HOST=localhost
+OPENSEARCH_PORT=9200
+OPENSEARCH_USER=admin
+OPENSEARCH_PASSWORD=Admin@Orqestra1
+```
+
+> **Note:** If running inside Docker Compose, set `OPENSEARCH_HOST=opensearch` (the service name) instead of `localhost`. You can pass this in `docker-compose.yml` under the `backend` service `environment` block.
+
+#### 3. Restart the backend
+
+```bash
+docker compose restart backend
+```
+
+The backend will connect to OpenSearch on startup, create the `orqestra_entities` index if it does not exist, and begin indexing new and updated entities automatically.
+
+#### 4. Verify the connection
+
+Check the backend logs:
+
+```bash
+docker compose logs backend | grep -i opensearch
+# Expected: Created OpenSearch index 'orqestra_entities'
+```
+
+Or query the index directly:
+
+```bash
+curl -sk https://localhost:9200/orqestra_entities/_count \
+  -u admin:Admin@Orqestra1 | python3 -m json.tool
+```
+
+#### Switching back to Postgres
+
+Set `SEARCH_BACKEND=postgres` in your `.env` and restart the backend. The OpenSearch container can be left running or stopped:
+
+```bash
+docker compose stop opensearch
+```
+
+#### Note on backfilling existing data
+
+When you first enable OpenSearch, only entities created or updated **after** the switch are indexed. Entities that existed before will not appear in search results until they are edited. A bulk re-index script is planned for a future release.
 
 
 ## ⚙️ Running locally (without Docker)
@@ -260,14 +349,14 @@ Open http://localhost:3000. The Vite dev server proxies all `/api` requests to `
 ### Short-term
 - Dockerfile for frontend (production build with Nginx)
 - User assignment to cards and boards
-- Board search and filtering UI
+- Bulk re-index script to backfill existing entities into OpenSearch
 - Real-time cross-member updates — card and list changes broadcast live to all board members via WebSockets (Flask-SocketIO), eliminating the need to reload the page
 
 ### Mid-term
-- OpenSearch indexing + search APIs
 - Activity stream (event-driven)
 - Entity versioning system
 - Audit log viewer in UI
+- Faceted search and filters (by status, assignee, date range)
 
 ### Long-term
 - Event bus integration (async processing)
