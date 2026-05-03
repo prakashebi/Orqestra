@@ -44,7 +44,9 @@ def check_entity_permission(entity, current_user: User, require_owner_or_admin: 
 
     Admins pass unconditionally. Owners always pass. Members pass unless
     require_owner_or_admin=True (used for invite/remove operations).
+    For columns and cards, board-level membership is also accepted.
     """
+    from app.models.entity import Entity  # avoid circular import
     from app.models.membership import Membership  # avoid circular import
 
     if current_user.role == UserRole.admin:
@@ -62,8 +64,34 @@ def check_entity_permission(entity, current_user: User, require_owner_or_admin: 
             Membership.user_id == current_user.id,
         )
     )
-    if not membership:
-        abort(403, description="Access denied: you are not a member of this entity")
+    if membership:
+        return
+
+    # For columns and cards, also accept membership on the parent board
+    if entity.entity_type in ("column", "card") and entity.metadata_:
+        board_id_str = entity.metadata_.get("board_id")
+        if board_id_str:
+            try:
+                board_id = uuid.UUID(board_id_str)
+            except (ValueError, AttributeError):
+                board_id = None
+            if board_id:
+                board = db.session.scalar(
+                    select(Entity).where(Entity.id == board_id, Entity.is_deleted.is_(False))
+                )
+                if board:
+                    if board.owner_id == current_user.id:
+                        return
+                    board_membership = db.session.scalar(
+                        select(Membership).where(
+                            Membership.entity_id == board_id,
+                            Membership.user_id == current_user.id,
+                        )
+                    )
+                    if board_membership:
+                        return
+
+    abort(403, description="Access denied: you are not a member of this entity")
 
 
 def require_write_access(current_user: User) -> None:

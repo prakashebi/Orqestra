@@ -3,7 +3,8 @@ import uuid
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from pydantic import ValidationError
-from sqlalchemy import func, select
+from sqlalchemy import and_, cast, func, or_, select
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from app.api.deps import check_entity_permission, get_current_user, require_write_access
 from app.extensions import db
@@ -29,11 +30,29 @@ def list_entities():
 
     stmt = select(Entity).where(Entity.is_deleted.is_(False))
 
-    # Admins see all entities; others see entities they own or are members of
+    # Admins see all entities; others see entities they own or are members of,
+    # plus columns/cards that belong to any board they can access.
     if current_user.role != UserRole.admin:
         member_entity_ids = select(Membership.entity_id).where(Membership.user_id == current_user.id)
-        from sqlalchemy import or_
-        stmt = stmt.where(or_(Entity.owner_id == current_user.id, Entity.id.in_(member_entity_ids)))
+        accessible_board_ids = (
+            select(Entity.id)
+            .where(
+                Entity.entity_type == "board",
+                Entity.is_deleted.is_(False),
+                or_(Entity.owner_id == current_user.id, Entity.id.in_(member_entity_ids)),
+            )
+        )
+        stmt = stmt.where(
+            or_(
+                Entity.owner_id == current_user.id,
+                Entity.id.in_(member_entity_ids),
+                and_(
+                    Entity.entity_type.in_(["column", "card"]),
+                    Entity.metadata_["board_id"].astext.isnot(None),
+                    cast(Entity.metadata_["board_id"].astext, PG_UUID(as_uuid=True)).in_(accessible_board_ids),
+                ),
+            )
+        )
 
     if entity_type:
         stmt = stmt.where(Entity.entity_type == entity_type)

@@ -64,6 +64,34 @@ def invite_member(entity_id: str):
         invited_by=current_user.id,
     )
     db.session.add(membership)
+
+    # When adding a member to a board, ensure they can also see the parent workspace
+    if entity.entity_type == "board" and entity.metadata_:
+        workspace_id_str = entity.metadata_.get("workspace_id")
+        if workspace_id_str:
+            try:
+                workspace_id = uuid.UUID(workspace_id_str)
+            except (ValueError, AttributeError):
+                workspace_id = None
+            if workspace_id:
+                workspace = db.session.scalar(
+                    select(Entity).where(Entity.id == workspace_id, Entity.is_deleted.is_(False))
+                )
+                if workspace and workspace.owner_id != target_user.id:
+                    existing_ws = db.session.scalar(
+                        select(Membership).where(
+                            Membership.entity_id == workspace_id,
+                            Membership.user_id == target_user.id,
+                        )
+                    )
+                    if not existing_ws:
+                        db.session.add(Membership(
+                            entity_id=workspace_id,
+                            user_id=target_user.id,
+                            role=MemberRole.viewer,
+                            invited_by=current_user.id,
+                        ))
+
     db.session.commit()
     db.session.refresh(membership)
     return jsonify(MemberRead.from_membership(membership).model_dump(mode="json")), 201
