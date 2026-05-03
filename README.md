@@ -262,6 +262,7 @@ Open http://localhost:3000. The Vite dev server proxies all `/api` requests to `
 - User assignment to cards and boards
 - Board search and filtering UI
 - Real-time cross-member updates — card and list changes broadcast live to all board members via WebSockets (Flask-SocketIO), eliminating the need to reload the page
+- Attachments, so that members can upload relevant files in the cards
 
 ### Mid-term
 - OpenSearch indexing + search APIs
