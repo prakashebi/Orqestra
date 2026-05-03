@@ -100,12 +100,19 @@ repo-root/
 │   │   │       ├── auth.py
 │   │   │       ├── users.py
 │   │   │       ├── entities.py
+│   │   │       ├── members.py
 │   │   │       └── events.py
 │   │   ├── core/
-│   │   │   ├── config.py         # pydantic-settings
+│   │   │   ├── config.py         # pydantic-settings (incl. SEARCH_BACKEND)
 │   │   │   └── security.py       # password hashing
 │   │   ├── models/               # SQLAlchemy models
-│   │   └── schemas/              # Pydantic schemas
+│   │   ├── schemas/              # Pydantic schemas
+│   │   └── services/
+│   │       └── search/
+│   │           ├── base.py           # SearchService ABC + SearchResult
+│   │           ├── postgres.py       # PostgreSQL FTS implementation
+│   │           ├── opensearch_service.py  # OpenSearch implementation
+│   │           └── factory.py        # resolves backend from SEARCH_BACKEND env var
 │   ├── server.py                 # entrypoint
 │   ├── requirements.txt
 │   ├── Dockerfile
@@ -116,15 +123,27 @@ repo-root/
 │   │   ├── api/                  # axios client + endpoints
 │   │   ├── store/                # Zustand state (auth, board)
 │   │   ├── types/                # TypeScript types
-│   │   ├── components/           # ui/, layout/, board/
-│   │   └── pages/                # Login, Register, Workspaces, Board
+│   │   ├── components/
+│   │   │   ├── ui/               # Button, Input, Modal, Spinner
+│   │   │   ├── layout/           # Navbar (with Search link)
+│   │   │   ├── board/            # BoardCard, BoardColumn, CardModal
+│   │   │   └── members/          # MembersModal
+│   │   └── pages/
+│   │       ├── LoginPage.tsx
+│   │       ├── RegisterPage.tsx
+│   │       ├── WorkspacesPage.tsx
+│   │       ├── WorkspacePage.tsx
+│   │       ├── BoardPage.tsx
+│   │       └── SearchPage.tsx    # global search with grouped results
 │   ├── package.json
 │   └── .env.example
 │
 ├── docs/
 │   └── architecture.md
 │
-├── docker-compose.yml
+├── docker-compose.yml            # includes optional opensearch profile
+├── .env.example                  # template for root-level env overrides
+├── .env                          # local environment overrides (not committed)
 ├── .gitignore
 └── README.md
 ```
@@ -161,6 +180,14 @@ Generate one with:
 ```bash
 python -c "import secrets; print(secrets.token_hex(32))"
 ```
+
+If you plan to use **OpenSearch** (optional), also create a root-level `.env` from the provided example:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and set `SEARCH_BACKEND=opensearch` along with your OpenSearch credentials. See [Search Backends](#-search-backends) for full details. If you skip this, search defaults to PostgreSQL FTS with no extra setup required.
 
 ### 3. Build and start all services
 
