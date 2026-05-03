@@ -18,7 +18,10 @@ class Settings(BaseSettings):
     # Database (sync — psycopg2)
     database_url: str = "postgresql+psycopg2://orqestra:orqestra@localhost:5432/orqestra"
 
-    # OpenSearch
+    # Search backend — "postgres" (default, no extra infra) or "opensearch"
+    search_backend: str = "postgres"
+
+    # OpenSearch (only used when search_backend=opensearch)
     opensearch_host: str = "localhost"
     opensearch_port: int = 9200
     opensearch_user: str = "admin"

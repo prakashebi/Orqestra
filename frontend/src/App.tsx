@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage'
 import WorkspacesPage from './pages/WorkspacesPage'
 import WorkspacePage from './pages/WorkspacePage'
 import BoardPage from './pages/BoardPage'
+import SearchPage from './pages/SearchPage'
 import Spinner from './components/ui/Spinner'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -55,6 +56,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <BoardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <SearchPage />
             </ProtectedRoute>
           }
         />
