@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, LayoutGrid, ChevronRight } from 'lucide-react'
+import { LogOut, LayoutGrid, ChevronRight, Search } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 
 interface Crumb {
@@ -46,6 +46,14 @@ export default function Navbar({ breadcrumbs = [], actions }: Props) {
       {user && (
         <div className="flex items-center gap-3">
           {actions}
+          <Link
+            to="/search"
+            className="flex items-center gap-1 rounded px-2 py-1 text-sm text-indigo-200 hover:bg-indigo-600 hover:text-white"
+            title="Search"
+          >
+            <Search size={15} />
+            <span>Search</span>
+          </Link>
           <span className="text-sm text-indigo-200">{user.username}</span>
           <button
             onClick={handleLogout}

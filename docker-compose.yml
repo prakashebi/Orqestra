@@ -47,5 +47,24 @@ services:
     depends_on:
       - backend
 
+  # OpenSearch — opt-in via: docker compose --profile opensearch up
+  opensearch:
+    image: opensearchproject/opensearch:2.13.0
+    profiles: ["opensearch"]
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Admin@Orqestra1
+    ports:
+      - "9200:9200"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sk https://localhost:9200 -u admin:Admin@Orqestra1 | grep -q opensearch"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   pg_data:
+  opensearch_data:

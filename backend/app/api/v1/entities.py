@@ -13,6 +13,7 @@ from app.models.event import AuditEvent
 from app.models.membership import Membership
 from app.models.user import UserRole
 from app.schemas.entity import EntityCreate, EntityListResponse, EntityRead, EntityUpdate
+from app.services.search import get_search_service
 
 bp = Blueprint("entities", __name__, url_prefix="/api/v1/entities")
 
@@ -59,7 +60,15 @@ def list_entities():
     if status:
         stmt = stmt.where(Entity.status == EntityStatus(status))
     if q:
-        stmt = stmt.where(Entity.title.ilike(f"%{q}%"))
+        results = get_search_service().search(
+            q,
+            entity_types=[entity_type] if entity_type else None,
+            limit=200,
+        )
+        if not results:
+            return jsonify(EntityListResponse(total=0, items=[]).model_dump(mode="json", by_alias=True))
+        matching_ids = [uuid.UUID(r.entity_id) for r in results]
+        stmt = stmt.where(Entity.id.in_(matching_ids))
 
     total = db.session.scalar(select(func.count()).select_from(stmt.subquery()))
     rows = db.session.scalars(stmt.offset(skip).limit(limit)).all()
@@ -99,6 +108,10 @@ def create_entity():
     ))
     db.session.commit()
     db.session.refresh(entity)
+
+    get_search_service().index_entity(
+        str(entity.id), entity.entity_type, entity.title, entity.description, entity.metadata_
+    )
 
     return jsonify(EntityRead.model_validate(entity).model_dump(mode="json", by_alias=True)), 201
 
@@ -155,6 +168,10 @@ def update_entity(entity_id: str):
     db.session.commit()
     db.session.refresh(entity)
 
+    get_search_service().update_entity(
+        str(entity.id), entity.title, entity.description, entity.metadata_
+    )
+
     return jsonify(EntityRead.model_validate(entity).model_dump(mode="json", by_alias=True))
 
 
@@ -181,4 +198,7 @@ def delete_entity(entity_id: str):
         payload={"title": entity.title},
     ))
     db.session.commit()
+
+    get_search_service().delete_entity(str(entity.id))
+
     return "", 204
