@@ -301,7 +301,7 @@ SEARCH_BACKEND=opensearch
 OPENSEARCH_HOST=localhost
 OPENSEARCH_PORT=9200
 OPENSEARCH_USER=admin
-OPENSEARCH_PASSWORD=Admin@Orqestra1
+OPENSEARCH_PASSWORD=your-opensearch-password
 ```
 
 > **Note:** If running inside Docker Compose, set `OPENSEARCH_HOST=opensearch` (the service name) instead of `localhost`. You can pass this in `docker-compose.yml` under the `backend` service `environment` block.
@@ -327,7 +327,7 @@ Or query the index directly:
 
 ```bash
 curl -sk https://localhost:9200/orqestra_entities/_count \
-  -u admin:Admin@Orqestra1 | python3 -m json.tool
+  -u admin:your-opensearch-password | python3 -m json.tool
 ```
 
 #### Switching back to Postgres

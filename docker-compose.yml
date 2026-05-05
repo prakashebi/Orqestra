@@ -48,19 +48,20 @@ services:
       - backend
 
   # OpenSearch — opt-in via: docker compose --profile opensearch up
+  # Set OPENSEARCH_PASSWORD in your root .env file before starting.
   opensearch:
     image: opensearchproject/opensearch:2.13.0
     profiles: ["opensearch"]
     restart: unless-stopped
     environment:
       - discovery.type=single-node
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Admin@Orqestra1
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD}
     ports:
       - "9200:9200"
     volumes:
       - opensearch_data:/usr/share/opensearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -sk https://localhost:9200 -u admin:Admin@Orqestra1 | grep -q opensearch"]
+      test: ["CMD-SHELL", "curl -sk -o /dev/null -w '%{http_code}' https://localhost:9200 | grep -qE '200|401'"]
       interval: 10s
       timeout: 5s
       retries: 10
