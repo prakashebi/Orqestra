@@ -378,6 +378,7 @@ Open http://localhost:3000. The Vite dev server proxies all `/api` requests to `
 - User assignment to cards and boards
 - Bulk re-index script to backfill existing entities into OpenSearch
 - Real-time cross-member updates — card and list changes broadcast live to all board members via WebSockets (Flask-SocketIO), eliminating the need to reload the page
+- Attachments, so that members can upload relevant files in the cards
 
 ### Mid-term
 - Activity stream (event-driven)
