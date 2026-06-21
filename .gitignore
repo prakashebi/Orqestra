@@ -48,4 +48,5 @@ htmlcov/
 *.override.yml
 
 # ── Uploads (runtime data) ────────────────────────────────────────────────────
-backend/uploads/
+backend/uploads/*
+!backend/uploads/.gitkeep

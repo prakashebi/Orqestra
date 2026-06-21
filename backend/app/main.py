@@ -40,6 +40,9 @@ def create_app() -> Flask:
         app.logger.exception("Unhandled exception: %s", e)
         return jsonify(detail=str(e)), 500
 
+    from pathlib import Path
+    Path(settings.upload_folder).mkdir(parents=True, exist_ok=True)
+
     with app.app_context():
         db.create_all()
         from app.core.seed import seed_default_admin

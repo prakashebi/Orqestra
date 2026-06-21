@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { entitiesApi } from '../api/entities'
+import { attachmentsApi, entitiesApi } from '../api/entities'
 import type { Board, Card, Column, Comment, Workspace } from '../types'
 
 interface BoardState {
@@ -21,6 +21,8 @@ interface BoardState {
   updateCard: (cardId: string, updates: Partial<Pick<Card, 'title' | 'description' | 'status' | 'metadata'>>) => Promise<void>
   deleteCard: (cardId: string) => Promise<void>
   addComment: (cardId: string, comment: Comment) => Promise<void>
+  uploadAttachment: (cardId: string, file: File) => Promise<void>
+  removeAttachment: (cardId: string, attachmentId: string) => Promise<void>
   clearError: () => void
 }
 
@@ -146,6 +148,20 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     const updated = await entitiesApi.update(cardId, {
       metadata: { ...card.metadata, comments: [...existing, comment] },
     })
+    set((s) => ({
+      cards: s.cards.map((c) => (c.id === cardId ? (updated as Card) : c)),
+    }))
+  },
+
+  uploadAttachment: async (cardId, file) => {
+    const updated = await attachmentsApi.upload(cardId, file)
+    set((s) => ({
+      cards: s.cards.map((c) => (c.id === cardId ? (updated as Card) : c)),
+    }))
+  },
+
+  removeAttachment: async (cardId, attachmentId) => {
+    const updated = await attachmentsApi.remove(cardId, attachmentId)
     set((s) => ({
       cards: s.cards.map((c) => (c.id === cardId ? (updated as Card) : c)),
     }))

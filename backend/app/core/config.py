@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # File uploads (local disk)
+    upload_folder: str = "uploads"
+    max_upload_size_mb: int = 10
+
     # AWS S3 (planned)
     aws_region: str = "eu-west-1"
     s3_bucket: str = ""
