@@ -34,6 +34,15 @@ export interface Comment {
   created_at: string
 }
 
+export interface Attachment {
+  id: string
+  name: string
+  size: number
+  type: string
+  uploaded_by: string
+  uploaded_at: string
+}
+
 export interface Card extends Entity {
   entity_type: 'card'
   metadata: {
@@ -43,6 +52,7 @@ export interface Card extends Entity {
     assignee_id?: string
     assignee_name?: string
     comments?: Comment[]
+    attachments?: Attachment[]
   }
 }
 
