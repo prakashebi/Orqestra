@@ -18,6 +18,7 @@ The platform focuses on structured data, real-time updates, searchability, and f
 - Trello-like board UI with drag-and-drop
 - Full-text search with pluggable backend (PostgreSQL FTS default, OpenSearch optional)
 - Global search UI with grouped results across all entity types
+- File uploads with cards
 
 
 ## 🧠 Problem Statement
@@ -47,7 +48,7 @@ Orqestra addresses these gaps by introducing:
 - **Database:** PostgreSQL
 - **Search:** PostgreSQL FTS (default, zero extra infra) or OpenSearch (optional, for scale)
 - **Event Layer:** Planned – async/event-driven pattern
-- **Storage:** AWS S3 (planned)
+- **Storage:** Local storage but AWS S3 (planned)
 - **Deployment:** Docker Compose (local), AWS EC2 (planned)
 
 ### High-Level Flow
